@@ -9,8 +9,10 @@ _PUBLIC_ROUTES: set[tuple[str, str]] = {
     ("POST", "/api/auth/register"),
     ("POST", "/api/auth/refresh"),
     ("POST", "/api/auth/verify"),
+    ("POST", "/api/auth/verify-email"),
+    ("POST", "/api/auth/forgot-password"),
+    ("POST", "/api/auth/reset-password"),
 }
-
 
 def is_public(method: str, path: str) -> bool:
     return (method.upper(), path) in _PUBLIC_ROUTES
