@@ -6,11 +6,14 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 
 from main import app
+from app.core.config import settings
 
 client = TestClient(app)
 
-SECRET = "change-me-in-production"
-ALGORITHM = "HS256"
+# Firma con el secreto efectivamente configurado (settings lee .env/env),
+# para que los tokens validen sin depender del valor del .env de desarrollo.
+SECRET = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 
 def _make_token(user_id: str = "abc-123", role: str = "student") -> str:
@@ -87,6 +90,21 @@ def test_unknown_service_returns_404():
     token = _make_token()
     res = client.get("/api/unknown/path", headers={"authorization": f"Bearer {token}"})
     assert res.status_code == 404
+
+
+def test_proxies_thesis_to_chat_service():
+    token = _make_token()
+    with respx.mock:
+        respx.post("http://localhost:8002/thesis/sections/resumen").mock(
+            return_value=httpx.Response(200, json={"key": "resumen", "titulo": "Resumen", "contenido": "ok"})
+        )
+        res = client.post(
+            "/api/thesis/sections/resumen",
+            headers={"authorization": f"Bearer {token}"},
+            json={"objeto_de_estudio": {}},
+        )
+    assert res.status_code == 200
+    assert res.json()["key"] == "resumen"
 
 
 def test_upstream_unavailable_returns_503():

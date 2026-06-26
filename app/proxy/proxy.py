@@ -8,6 +8,7 @@ _SKIP_HEADERS = {"host", "content-length", "transfer-encoding", "connection"}
 _SERVICE_MAP = {
     "auth": lambda: settings.AUTH_SERVICE_URL + "/auth",
     "chat": lambda: settings.CHAT_SERVICE_URL + "/chat",
+    "thesis": lambda: settings.CHAT_SERVICE_URL + "/thesis",
     "docs": lambda: settings.DOCS_SERVICE_URL + "/docs",
 }
 
